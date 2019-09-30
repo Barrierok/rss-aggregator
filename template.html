@@ -9,16 +9,21 @@
     <div class="container">
       <div class="jumbotron">
         <h2>Введите источник для генерации RSS</h1>
-        <form>
+        <form id="form">
           <div class="form-row">
             <div class="form-group col-md-10">
               <input type="text" class="form-control" placeholder="Источник">
             </div>
             <div class="form-group col-md-2">
-              <button type="submit" class="btn btn-primary w-100">Добавить</button>
+              <button disabled type="submit" class="btn btn-primary w-100">Добавить</button>
             </div>
           </div>
         </form>
+        <p>Пример: https://lorem-rss.herokuapp.com/feed</p>
+      </div>
+      <div class="row">
+        <div class="links col-md-4"></div>
+        <div class="posts col-md-8"></div>
       </div>
     </div>
   </body>
