@@ -6,7 +6,7 @@ import {
   renderChannels,
   renderPosts,
   renderModal,
-} from './renderes';
+} from './renderers';
 
 // https://lorem-rss.herokuapp.com/feed
 

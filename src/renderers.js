@@ -1,4 +1,4 @@
-import formStatuses from './constants';
+import { formStatuses } from './constants';
 
 export const renderForm = (state) => () => {
   const inputElement = document.querySelector('#inputForm');
@@ -39,7 +39,7 @@ export const renderChannels = (state) => () => {
   const channelsList = document.querySelector('#channels');
   const channels = state.channels.map((feed) => (
     `<li class="list-group-item">
-      <h6>${feed.title}</h6>
+      <h5>${feed.title}</h5>
       <p>${feed.description}</p>
     </li>`
   ));
@@ -50,10 +50,12 @@ export const renderPosts = (state) => () => {
   const postsList = document.querySelector('#posts');
   const posts = state.posts.map(({ title, link }) => (
     `<div class="col-sm-6 mb-3">
-      <div class="card text-center">
-        <div class="card-body">
+      <div class="card">
+        <div class="card-body w-100">
           <a href=${link} class="card-title">${title}</a>
-          <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#postModal" data-href="${link}">Больше</a>
+        </div>
+        <div class="card-footer w-100">
+          <a href="#" class="w-100 btn btn-primary" data-toggle="modal" data-target="#postModal" data-href="${link}">Больше</a>
         </div>
       </div>
     </div>`

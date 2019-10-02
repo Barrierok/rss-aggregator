@@ -1,8 +1,7 @@
 import validator from 'validator';
 import axios from 'axios';
-import formStatuses from './constants';
-
-const proxy = 'https://cors-anywhere.herokuapp.com/';
+import _ from 'lodash';
+import { formStatuses, proxy, interval } from './constants';
 
 const parseFeed = (data, value) => {
   const parser = new DOMParser();
@@ -28,11 +27,44 @@ const parseFeed = (data, value) => {
   return { channel, posts };
 };
 
-const updateState = ({ channel, posts }, currentState) => {
+const setState = (data, currentState, link) => {
   const state = currentState;
-  state.channels = [...state.channels, channel];
-  state.posts = [...state.posts, ...posts];
+  const channel = state.channels.find((item) => item.link === link);
+
+  if (channel) {
+    const newPosts = _.differenceWith(data.posts, state.posts, _.isEqual);
+    state.posts = [...newPosts, ...state.posts];
+    return;
+  }
+
+  state.channels = [...state.channels, data.channel];
+  state.posts = [ ...data.posts, ...state.posts];
   state.formStatus = formStatuses.default;
+};
+
+const fetchFeed = (inputLink, state, currentProxy, currentInterval) => (
+  axios.get(`${currentProxy}${inputLink}`)
+    .then(({ data }) => {
+      const feed = parseFeed(data, inputLink);
+      setState(feed, state, inputLink);
+    })
+    .then(() => setTimeout(() => (
+      fetchFeed(inputLink, state, currentProxy, currentInterval)
+    ), currentInterval))
+    .catch((err) => {
+      throw err;
+    })
+);
+
+export const handleSubmit = (currentState) => (event) => {
+  event.preventDefault();
+  const { target } = event;
+  const { value } = target.inputForm;
+
+  const state = currentState;
+  state.formStatus = formStatuses.load;
+
+  fetchFeed(value, state, proxy, interval);
 };
 
 export const handleInput = (currentState) => ({ target }) => {
@@ -50,24 +82,6 @@ export const handleInput = (currentState) => ({ target }) => {
     return;
   }
   state.formStatus = formStatuses.invalid;
-};
-
-export const handleSubmit = (currentState) => (event) => {
-  event.preventDefault();
-  const { target } = event;
-  const { value } = target.inputForm;
-
-  const state = currentState;
-  state.formStatus = formStatuses.load;
-
-  axios.get(`${proxy}${value}`)
-    .then(({ data }) => {
-      const feed = parseFeed(data, value);
-      updateState(feed, state);
-    })
-    .catch((err) => {
-      throw err;
-    });
 };
 
 export const handlePostClick = (currentState) => (event) => {
