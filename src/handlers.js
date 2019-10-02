@@ -38,7 +38,7 @@ const setState = (data, currentState, link) => {
   }
 
   state.channels = [...state.channels, data.channel];
-  state.posts = [ ...data.posts, ...state.posts];
+  state.posts = [...data.posts, ...state.posts];
   state.formStatus = formStatuses.default;
 };
 
