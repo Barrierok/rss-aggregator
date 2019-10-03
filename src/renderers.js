@@ -1,8 +1,43 @@
 import { formStatuses, errorMessages } from './utils';
 
-export const renderError = (state) => () => {
-  const errorElement = document.querySelector('#feedBack');
-  errorElement.innerHTML = errorMessages[state.error];
+const validForm = (...args) => {
+  const [inputElement, buttonElement] = args;
+  inputElement.classList.remove('is-invalid');
+  inputElement.classList.add('is-valid');
+  buttonElement.disabled = false;
+};
+
+const defaultForm = (...args) => {
+  const [inputElement, buttonElement, buttonElementSpinner] = args;
+  inputElement.value = '';
+  inputElement.disabled = false;
+  inputElement.classList.remove('is-valid');
+  inputElement.classList.remove('is-invalid');
+  buttonElement.disabled = true;
+  buttonElementSpinner.classList.add('d-none');
+};
+
+const invalidForm = (...args) => {
+  const [inputElement, buttonElement, buttonElementSpinner] = args;
+  inputElement.disabled = false;
+  inputElement.classList.remove('is-valid');
+  inputElement.classList.add('is-invalid');
+  buttonElement.disabled = true;
+  buttonElementSpinner.classList.add('d-none');
+};
+
+const loadForm = (...args) => {
+  const [inputElement, buttonElement, buttonElementSpinner] = args;
+  inputElement.disabled = true;
+  buttonElement.disabled = true;
+  buttonElementSpinner.classList.remove('d-none');
+};
+
+const selectStatus = {
+  [formStatuses.default]: defaultForm,
+  [formStatuses.valid]: validForm,
+  [formStatuses.invalid]: invalidForm,
+  [formStatuses.load]: loadForm,
 };
 
 export const renderForm = (state) => () => {
@@ -10,34 +45,12 @@ export const renderForm = (state) => () => {
   const buttonElement = document.querySelector('#buttonForm');
   const buttonElementSpinner = buttonElement.querySelector('#buttonFormSpinner');
 
-  switch (state.formStatus) {
-    case formStatuses.default:
-      inputElement.value = '';
-      inputElement.disabled = false;
-      inputElement.classList.remove('is-valid');
-      inputElement.classList.remove('is-invalid');
-      buttonElement.disabled = true;
-      buttonElementSpinner.classList.add('d-none');
-      break;
-    case formStatuses.valid:
-      inputElement.classList.remove('is-invalid');
-      inputElement.classList.add('is-valid');
-      buttonElement.disabled = false;
-      break;
-    case formStatuses.invalid:
-      inputElement.disabled = false;
-      inputElement.classList.remove('is-valid');
-      inputElement.classList.add('is-invalid');
-      buttonElement.disabled = true;
-      buttonElementSpinner.classList.add('d-none');
-      break;
-    case formStatuses.load:
-      inputElement.disabled = true;
-      buttonElement.disabled = true;
-      buttonElementSpinner.classList.remove('d-none');
-      break;
-    default:
-  }
+  selectStatus[state.formStatus](inputElement, buttonElement, buttonElementSpinner);
+};
+
+export const renderError = (state) => () => {
+  const errorElement = document.querySelector('#feedBack');
+  errorElement.innerHTML = errorMessages[state.error];
 };
 
 export const renderChannels = (state) => () => {
