@@ -83,6 +83,16 @@ export const handleSubmit = (currentState) => (event) => {
   fetchFeed(value, state, proxy, interval);
 };
 
+const validate = (isExisting, isUrl, currentState) => {
+  const state = currentState;
+  if (!isExisting && isUrl) {
+    state.formStatus = formStatuses.valid;
+    return;
+  }
+  state.error = isExisting ? handledErrors['Alredy exist'] : handledErrors['Is not URL'];
+  state.formStatus = formStatuses.invalid;
+};
+
 export const handleInput = (currentState) => ({ target }) => {
   const state = currentState;
   const { value } = target;
@@ -93,14 +103,7 @@ export const handleInput = (currentState) => ({ target }) => {
 
   const isExisting = state.channels.some((channel) => channel.link === value);
   const isUrl = validator.isURL(value);
-
-  if (!isExisting && isUrl) {
-    state.formStatus = formStatuses.valid;
-    return;
-  }
-
-  state.error = isExisting ? handledErrors['Alredy exist'] : handledErrors['Is not URL'];
-  state.formStatus = formStatuses.invalid;
+  validate(isExisting, isUrl, state);
 };
 
 export const handlePostClick = (currentState) => (event) => {
