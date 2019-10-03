@@ -4,7 +4,7 @@ import _ from 'lodash';
 import {
   formStatuses,
   proxy,
-  interval,
+  intervalUpdate,
   handledErrors,
 } from './utils';
 
@@ -80,7 +80,7 @@ export const handleSubmit = (currentState) => (event) => {
   const state = currentState;
   state.formStatus = formStatuses.load;
 
-  fetchFeed(value, state, proxy, interval);
+  fetchFeed(value, state, proxy, intervalUpdate);
 };
 
 const validate = (isExisting, isUrl, currentState) => {

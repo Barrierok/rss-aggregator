@@ -25,4 +25,4 @@ export const errorMessages = {
 
 export const proxy = 'https://cors-anywhere.herokuapp.com/';
 
-export const interval = 5000;
+export const intervalUpdate = 5000;
