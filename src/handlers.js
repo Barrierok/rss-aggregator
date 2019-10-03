@@ -92,17 +92,14 @@ export const handleInput = (currentState) => ({ target }) => {
   }
 
   const isExisting = state.channels.some((channel) => channel.link === value);
-  if (isExisting) {
-    state.error = handledErrors['Alredy exist'];
-  }
   const isUrl = validator.isURL(value);
-  if (!isUrl) {
-    state.error = handledErrors['Is not URL'];
-  }
+
   if (!isExisting && isUrl) {
     state.formStatus = formStatuses.valid;
     return;
   }
+
+  state.error = isExisting ? handledErrors['Alredy exist'] : handledErrors['Is not URL'];
   state.formStatus = formStatuses.invalid;
 };
 
