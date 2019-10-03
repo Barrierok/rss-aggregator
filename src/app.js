@@ -8,10 +8,9 @@ import {
   renderModal,
 } from './renderers';
 
-// https://lorem-rss.herokuapp.com/feed
-
 export default () => {
   const state = {
+    error: '',
     channels: [],
     posts: [],
     formStatus: 'default',

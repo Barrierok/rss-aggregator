@@ -1,11 +1,20 @@
 import validator from 'validator';
 import axios from 'axios';
 import _ from 'lodash';
-import { formStatuses, proxy, interval } from './constants';
+import {
+  formStatuses,
+  proxy,
+  interval,
+  handledErrors,
+} from './constants';
 
 const parseFeed = (data, value) => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(data, 'application/xml');
+
+  if (doc.querySelector('parsererror')) {
+    throw new Error('Parser Error');
+  }
 
   const channelTitle = doc.querySelector('channel > title').textContent;
   const channelDescription = doc.querySelector('channel > description').textContent;
@@ -42,8 +51,9 @@ const setState = (data, currentState, link) => {
   state.formStatus = formStatuses.default;
 };
 
-const fetchFeed = (inputLink, state, currentProxy, currentInterval) => (
-  axios.get(`${currentProxy}${inputLink}`)
+const fetchFeed = (inputLink, currentState, currentProxy, currentInterval) => {
+  const state = currentState;
+  return axios.get(`${currentProxy}${inputLink}`)
     .then(({ data }) => {
       const feed = parseFeed(data, inputLink);
       setState(feed, state, inputLink);
@@ -52,9 +62,13 @@ const fetchFeed = (inputLink, state, currentProxy, currentInterval) => (
       fetchFeed(inputLink, state, currentProxy, currentInterval)
     ), currentInterval))
     .catch((err) => {
-      throw err;
-    })
-);
+      const keyError = handledErrors[err.message];
+      if (keyError) {
+        state.error = keyError;
+      }
+      state.error = handledErrors['Unknown Error'];
+    });
+};
 
 export const handleSubmit = (currentState) => (event) => {
   event.preventDefault();
@@ -64,7 +78,10 @@ export const handleSubmit = (currentState) => (event) => {
   const state = currentState;
   state.formStatus = formStatuses.load;
 
-  fetchFeed(value, state, proxy, interval);
+  fetchFeed(value, state, proxy, interval)
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 export const handleInput = (currentState) => ({ target }) => {
@@ -76,7 +93,13 @@ export const handleInput = (currentState) => ({ target }) => {
   }
 
   const isExisting = state.channels.some((channel) => channel.link === value);
+  if (isExisting) {
+    state.error = handledErrors['Alredy exist'];
+  }
   const isUrl = validator.isURL(value);
+  if (!isUrl) {
+    state.error = handledErrors['Is not URL'];
+  }
   if (!isExisting && isUrl) {
     state.formStatus = formStatuses.valid;
     return;
