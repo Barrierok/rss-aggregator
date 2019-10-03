@@ -6,6 +6,7 @@ import {
   renderChannels,
   renderPosts,
   renderModal,
+  renderError,
 } from './renderers';
 
 export default () => {
@@ -20,6 +21,7 @@ export default () => {
     },
   };
 
+  watch(state, 'error', renderError(state));
   watch(state, 'formStatus', renderForm(state));
   watch(state, 'channels', renderChannels(state));
   watch(state, 'posts', renderPosts(state));

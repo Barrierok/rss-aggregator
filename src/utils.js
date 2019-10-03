@@ -16,7 +16,7 @@ export const handledErrors = {
 
 export const errorMessages = {
   parserError: 'Ошибка парсинга',
-  notFound: 'Введенный URL не сущаетсвует',
+  notFound: 'Введенный URL не сущетсвует',
   networkError: 'Проблемы с сетью',
   isNotUrl: 'Введенный адрес не является URl',
   alredyExist: 'Введенный адрес уже добавлен',

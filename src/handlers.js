@@ -6,7 +6,7 @@ import {
   proxy,
   interval,
   handledErrors,
-} from './constants';
+} from './utils';
 
 const parseFeed = (data, value) => {
   const parser = new DOMParser();
@@ -65,8 +65,10 @@ const fetchFeed = (inputLink, currentState, currentProxy, currentInterval) => {
       const keyError = handledErrors[err.message];
       if (keyError) {
         state.error = keyError;
+      } else {
+        state.error = handledErrors['Unknown Error'];
       }
-      state.error = handledErrors['Unknown Error'];
+      state.formStatus = formStatuses.invalid;
     });
 };
 
@@ -78,10 +80,7 @@ export const handleSubmit = (currentState) => (event) => {
   const state = currentState;
   state.formStatus = formStatuses.load;
 
-  fetchFeed(value, state, proxy, interval)
-    .catch((err) => {
-      console.log(err);
-    });
+  fetchFeed(value, state, proxy, interval);
 };
 
 export const handleInput = (currentState) => ({ target }) => {

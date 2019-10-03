@@ -1,4 +1,9 @@
-import { formStatuses } from './constants';
+import { formStatuses, errorMessages } from './utils';
+
+export const renderError = (state) => () => {
+  const errorElement = document.querySelector('#feedBack');
+  errorElement.innerHTML = errorMessages[state.error];
+};
 
 export const renderForm = (state) => () => {
   const inputElement = document.querySelector('#inputForm');
