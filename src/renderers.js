@@ -1,4 +1,4 @@
-import { formStatuses, errorMessages } from './utils';
+import { formStatuses, translator } from './utils';
 
 const validForm = (...args) => {
   const [inputElement, buttonElement] = args;
@@ -7,7 +7,7 @@ const validForm = (...args) => {
   buttonElement.disabled = false;
 };
 
-const defaultForm = (...args) => {
+const emptyForm = (...args) => {
   const [inputElement, buttonElement, buttonElementSpinner] = args;
   inputElement.value = '';
   inputElement.disabled = false;
@@ -34,7 +34,7 @@ const loadForm = (...args) => {
 };
 
 const selectStatus = {
-  [formStatuses.default]: defaultForm,
+  [formStatuses.empty]: emptyForm,
   [formStatuses.valid]: validForm,
   [formStatuses.invalid]: invalidForm,
   [formStatuses.load]: loadForm,
@@ -48,10 +48,13 @@ export const renderForm = (state) => () => {
   selectStatus[state.formStatus](inputElement, buttonElement, buttonElementSpinner);
 };
 
-export const renderError = (state) => () => {
-  const errorElement = document.querySelector('#feedBack');
-  errorElement.innerHTML = errorMessages[state.error];
-};
+export const renderError = (state) => () => (
+  translator()
+    .then((translate) => {
+      const errorElement = document.querySelector('#feedBack');
+      errorElement.innerHTML = translate(state.error);
+    })
+);
 
 export const renderChannels = (state) => () => {
   const channelsList = document.querySelector('#channels');

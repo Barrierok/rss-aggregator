@@ -6,37 +6,11 @@ import {
   proxy,
   intervalUpdate,
   handledErrors,
+  parseFeed,
+  validate,
 } from './utils';
 
-const parseFeed = (data, value) => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(data, 'application/xml');
-
-  if (doc.querySelector('parsererror')) {
-    throw new Error('Parser Error');
-  }
-
-  const channelTitle = doc.querySelector('channel > title').textContent;
-  const channelDescription = doc.querySelector('channel > description').textContent;
-
-  const channel = {
-    title: channelTitle,
-    description: channelDescription,
-    link: value,
-  };
-
-  const nodes = doc.querySelectorAll('channel > item');
-  const posts = [...nodes].map((item) => {
-    const title = item.querySelector('title').textContent;
-    const link = item.querySelector('link').textContent;
-    const description = item.querySelector('description').textContent;
-    return { title, link, description };
-  });
-
-  return { channel, posts };
-};
-
-const setState = (data, currentState, link) => {
+const updateState = (data, currentState, link) => {
   const state = currentState;
   const channel = state.channels.find((item) => item.link === link);
 
@@ -48,7 +22,7 @@ const setState = (data, currentState, link) => {
 
   state.channels = [...state.channels, data.channel];
   state.posts = [...data.posts, ...state.posts];
-  state.formStatus = formStatuses.default;
+  state.formStatus = formStatuses.empty;
 };
 
 const fetchFeed = (inputLink, currentState, currentProxy, currentInterval) => {
@@ -56,17 +30,24 @@ const fetchFeed = (inputLink, currentState, currentProxy, currentInterval) => {
   return axios.get(`${currentProxy}${inputLink}`)
     .then(({ data }) => {
       const feed = parseFeed(data, inputLink);
-      setState(feed, state, inputLink);
+      updateState(feed, state, inputLink);
     })
     .then(() => setTimeout(() => (
       fetchFeed(inputLink, state, currentProxy, currentInterval)
     ), currentInterval))
     .catch((err) => {
-      const keyError = handledErrors[err.message];
-      if (keyError) {
-        state.error = keyError;
-      } else {
-        state.error = handledErrors['Unknown Error'];
+      switch (err.message) {
+        case 'Request failed with status code 404':
+          state.error = handledErrors.notFound;
+          break;
+        case 'Network Error':
+          state.error = handledErrors.networkError;
+          break;
+        case 'Parser Error':
+          state.error = handledErrors.parserError;
+          break;
+        default:
+          state.error = handledErrors.unknownError;
       }
       state.formStatus = formStatuses.invalid;
     });
@@ -83,21 +64,11 @@ export const handleSubmit = (currentState) => (event) => {
   fetchFeed(value, state, proxy, intervalUpdate);
 };
 
-const validate = (isExisting, isUrl, currentState) => {
-  const state = currentState;
-  if (!isExisting && isUrl) {
-    state.formStatus = formStatuses.valid;
-    return;
-  }
-  state.error = isExisting ? handledErrors['Alredy exist'] : handledErrors['Is not URL'];
-  state.formStatus = formStatuses.invalid;
-};
-
 export const handleInput = (currentState) => ({ target }) => {
   const state = currentState;
   const { value } = target;
-  if (value.length === 0) {
-    state.formStatus = formStatuses.default;
+  if (value === '') {
+    state.formStatus = formStatuses.empty;
     return;
   }
 

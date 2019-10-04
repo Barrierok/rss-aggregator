@@ -14,7 +14,7 @@ export default () => {
     error: '',
     channels: [],
     posts: [],
-    formStatus: 'default',
+    formStatus: 'empty',
     modalData: {
       title: '',
       description: '',
