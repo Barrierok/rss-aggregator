@@ -12,6 +12,12 @@ export const formStatuses = {
   load: 'load',
 };
 
+export const errorMessages = {
+  parserError: 'Parser Erorr',
+  notFound: 'Request failed with status code 404',
+  networkError: 'Network Error',
+};
+
 export const handledErrors = {
   parserError: 'parserError',
   notFound: 'notFound',

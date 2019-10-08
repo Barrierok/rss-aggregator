@@ -1,13 +1,13 @@
 import _ from 'lodash';
 import axios from 'axios';
-import { handledErrors, formStatuses } from './utils';
+import { handledErrors, formStatuses, errorMessages } from './utils';
 
 const parseFeed = (data, value) => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(data, 'application/xml');
 
   if (doc.querySelector('parsererror')) {
-    throw new Error('Parser Error');
+    throw new Error(errorMessages.parserError);
   }
 
   const channelTitle = doc.querySelector('channel > title').textContent;
@@ -57,13 +57,13 @@ const fetchFeed = (inputLink, currentState, currentProxy, currentInterval) => {
     ), currentInterval))
     .catch((err) => {
       switch (err.message) {
-        case 'Request failed with status code 404':
+        case errorMessages.notFound:
           state.error = handledErrors.notFound;
           break;
-        case 'Network Error':
+        case errorMessages.networkError:
           state.error = handledErrors.networkError;
           break;
-        case 'Parser Error':
+        case errorMessages.parserError:
           state.error = handledErrors.parserError;
           break;
         default:
