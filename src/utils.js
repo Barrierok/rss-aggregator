@@ -1,5 +1,4 @@
-import i18next from 'i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import validator from 'validator';
 
 export const proxy = 'https://cors-anywhere.herokuapp.com/';
 
@@ -27,41 +26,18 @@ export const handledErrors = {
   unknownError: 'unknownError',
 };
 
-export const translator = () => (
-  i18next
-    .use(LanguageDetector)
-    .init({
-      resources: {
-        'ru-RU': {
-          translation: {
-            parserError: 'Ошибка парсинга',
-            notFound: 'Введенный URL не сущетсвует',
-            networkError: 'Проблемы с сетью',
-            isNotUrl: 'Введенный адрес не является URl',
-            alredyExist: 'Введенный адрес уже добавлен',
-            unknownError: 'Неизвестная ошибка',
-          },
-        },
-        en: {
-          translation: {
-            parserError: 'Parsing error',
-            notFound: 'The URL you entered does not exist',
-            networkError: 'Network problem',
-            isNotUrl: 'The address entered is not a URl',
-            alredyExist: 'The entered address has already been added',
-            unknownError: 'Unknown error',
-          },
-        },
-      },
-    })
-);
-
-export const validate = (isExisting, isUrl, currentState) => {
+export const validate = (currentState, value) => {
   const state = currentState;
+  const isExisting = state.channels.some((channel) => channel.link === value);
+  const isUrl = validator.isURL(value);
+
+  const result = { formStatus: null, error: '' };
+
   if (!isExisting && isUrl) {
-    state.formStatus = formStatuses.valid;
-    return;
+    return { ...result, formStatus: formStatuses.valid };
   }
-  state.error = isExisting ? handledErrors.alredyExist : handledErrors.isNotUrl;
-  state.formStatus = formStatuses.invalid;
+
+  result.error = isExisting ? handledErrors.alredyExist : handledErrors.isNotUrl;
+  result.formStatus = formStatuses.invalid;
+  return result;
 };

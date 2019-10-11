@@ -1,4 +1,3 @@
-import validator from 'validator';
 import {
   formStatuses,
   proxy,
@@ -26,9 +25,9 @@ export const handleInput = (currentState) => ({ target }) => {
     return;
   }
 
-  const isExisting = state.channels.some((channel) => channel.link === value);
-  const isUrl = validator.isURL(value);
-  validate(isExisting, isUrl, state);
+  const { formStatus, error } = validate(state, value);
+  state.formStatus = formStatus;
+  state.error = error;
 };
 
 export const handlePostClick = (currentState) => (event) => {

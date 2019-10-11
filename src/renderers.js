@@ -1,4 +1,5 @@
-import { formStatuses, translator } from './utils';
+import { formStatuses } from './utils';
+import translateErrors from './init';
 
 const validForm = (...args) => {
   const [inputElement, buttonElement] = args;
@@ -49,7 +50,7 @@ export const renderForm = (state) => () => {
 };
 
 export const renderError = (state) => () => (
-  translator()
+  translateErrors()
     .then((translate) => {
       const errorElement = document.querySelector('#feedBack');
       errorElement.innerHTML = translate(state.error);
