@@ -1,5 +1,5 @@
 import { formStatuses } from './utils';
-import translateErrors from './init';
+import translateErrors from './initTranslator';
 
 const validForm = (...args) => {
   const [inputElement, buttonElement] = args;
